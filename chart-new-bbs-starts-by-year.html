@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chart Demo</title>
+    <script src="javascripts/echarts.min.js"></script>
+    <script src="javascripts/chart-new-bbs-starts-by-year.data.js"></script>
+  </head>
+  <body>
+    <div id="main" style="width:1200px; height:800px;"></div>
+  </body>
+
+  <script type="text/javascript">
+      var myChart = echarts.init(document.getElementById('main'));
+      var bbsStartsPerYears = window.global_temp.bbs;
+
+      const xAxisData = bbsStartsPerYears.map(f => {
+        return f.start;
+      }).reverse();
+
+      const yAxisData = bbsStartsPerYears.map(f => {
+        return f.count;
+      }).reverse();
+
+      option = {
+          title: {
+              text: 'New BBS Starts by Year for all States'
+          },
+          tooltip : {
+              trigger: 'axis',
+              axisPointer: {
+                  type: 'cross',
+                  label: {
+                      backgroundColor: '#6a7985'
+                  }
+              }
+          },
+          legend: {
+              data:['Total BBS Recorded by Year']
+          },
+          toolbox: {
+              feature: {
+                  saveAsImage: {
+                      title: 'Save'
+                  }
+              }
+          },
+          grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '3%',
+              containLabel: true
+          },
+          xAxis : [
+              {
+                  type : 'category',
+                  boundaryGap : false,
+                  data : xAxisData
+              }
+          ],
+          yAxis : [
+              {
+                  type : 'value'
+              }
+          ],
+          series : [
+              {
+                  name:'Total BBS Recorded by Year',
+                  type:'line',
+                  label: {
+                      normal: {
+                          show: true,
+                          position: 'top'
+                      }
+                  },
+                  areaStyle: {normal: {}},
+                  data: yAxisData
+              }
+          ]
+      };
+
+      myChart.setOption(option);
+  </script>
+</html>

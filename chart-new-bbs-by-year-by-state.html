@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chart Demo</title>
+    <script src="javascripts/echarts.min.js"></script>
+    <script src="javascripts/chart-new-bbs-starts-by-year-by-state.data.js"></script>
+  </head>
+  <body>
+    <div id="main" style="width:100%; height:700px; padding-top:5em;"></div>
+  </body>
+
+  <script type="text/javascript">
+      const myChart = echarts.init(document.getElementById('main'));
+      const bbsTotalsPerYearPerStates = window.global_temp.bbs;
+
+      // Filter duplicates -> distinct array
+      const filterDuplicates = (e, position, arr) => {
+          return arr.indexOf(e) == position;
+      };
+
+      // List of all the states - distinct
+      const state_codes = bbsTotalsPerYearPerStates.map(f => {
+        return f.state_code;
+      }).filter(filterDuplicates);
+
+      // List of all the years - distinct
+      const xAxisData = bbsTotalsPerYearPerStates.map(f => {
+        return f.start;
+      }).filter(filterDuplicates).reverse()
+
+      const data = [];
+
+      // TODO Clean this up and reduce side-effects
+      xAxisData.forEach(year => {
+          state_codes.forEach(state => {
+
+              var bbsRecordYearState = bbsTotalsPerYearPerStates.filter(bbsRecord => {
+                  return bbsRecord.start == year && bbsRecord.state_code == state;
+              });
+
+              const state_count = bbsRecordYearState && bbsRecordYearState.length > 0 ? bbsRecordYearState[0].count : 0;
+
+              if(!data[state]) {
+                data[state] = []
+              }
+              data[state].push(state_count);
+          });
+      });
+
+      // TODO Clean this up and reduce side-effects
+      var fitToGraph = [];
+      for (var x in data) {
+          var r = { "name": x, "type": "line", "stack": "ByYearByState", "areaStyle": {}, "data": data[x] }
+          fitToGraph.push(r);
+      }
+
+      option = {
+          title: {
+              text: 'Total BBS Starts Recorded by Year by State'
+          },
+          tooltip : {
+              trigger: 'axis',
+              axisPointer: {
+                  type: 'cross',
+                  label: {
+                      backgroundColor: '#6a7985'
+                  }
+              }
+          },
+          legend: {
+              data:['Total BBS Recorded by Year']
+          },
+          toolbox: {
+              feature: {
+                  saveAsImage: {
+                      title: 'Save'
+                  }
+              }
+          },
+          grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '3%',
+              containLabel: true
+          },
+          xAxis : [
+              {
+                  type : 'category',
+                  boundaryGap : false,
+                  data : xAxisData
+              }
+          ],
+          yAxis : [
+              {
+                  type : 'value'
+              }
+          ],
+          series : fitToGraph
+      };
+
+      myChart.setOption(option);
+  </script>
+</html>
