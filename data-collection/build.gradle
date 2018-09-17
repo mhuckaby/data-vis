@@ -1,0 +1,22 @@
+apply plugin: 'application'
+apply plugin: 'groovy'
+
+mainClassName = "com.mhuckaby.bbs.service.Runner"
+
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+    maven { url 'http://repo.maven.apache.org/maven2' }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.5.2'
+}
+
