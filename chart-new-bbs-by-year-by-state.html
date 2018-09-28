@@ -10,94 +10,84 @@
   </body>
 
   <script type="text/javascript">
-      const myChart = echarts.init(document.getElementById('main'));
-      const bbsTotalsPerYearPerStates = window.global_temp.bbs;
+    const myChart = echarts.init(document.getElementById('main'));
+    const bbsTotalsPerYearPerState = window.global_temp.bbs;
 
-      // Filter duplicates -> distinct array
-      const filterDuplicates = (e, position, arr) => {
-          return arr.indexOf(e) == position;
-      };
+    // Filter duplicates -> distinct array
+    const filterDuplicates = (e, position, arr) => {
+      return arr.indexOf(e) == position;
+    };
 
-      // List of all the states - distinct
-      const state_codes = bbsTotalsPerYearPerStates.map(f => {
-        return f.state_code;
-      }).filter(filterDuplicates);
+    // List of all the states - distinct
+    const stateCodes = bbsTotalsPerYearPerState.map(f => {
+      return f.state_code;
+    }).filter(filterDuplicates);
 
-      // List of all the years - distinct
-      const xAxisData = bbsTotalsPerYearPerStates.map(f => {
-        return f.start;
-      }).filter(filterDuplicates).reverse()
+    // List of all the years - distinct
+    const xAxisData = bbsTotalsPerYearPerState.map(f => {
+      return f.start;
+    }).filter(filterDuplicates).reverse();
 
-      const data = [];
+    // Object format supported by graph lib
+    const graphObject = (stateCode, countPerYear) => {
+      return { "name": stateCode, "type": "line", "stack": "ByYearByState", "areaStyle": {}, "data": countPerYear }
+    };
 
-      // TODO Clean this up and reduce side-effects
-      xAxisData.forEach(year => {
-          state_codes.forEach(state => {
-
-              var bbsRecordYearState = bbsTotalsPerYearPerStates.filter(bbsRecord => {
-                  return bbsRecord.start == year && bbsRecord.state_code == state;
-              });
-
-              const state_count = bbsRecordYearState && bbsRecordYearState.length > 0 ? bbsRecordYearState[0].count : 0;
-
-              if(!data[state]) {
-                data[state] = []
-              }
-              data[state].push(state_count);
-          });
+    // For each stateCode, generate an array (size xAxisData.length) of counts per year
+    const fitToGraph = stateCodes.map(stateCode => {
+      const recordsByState = bbsTotalsPerYearPerState.filter(f => f.state_code === stateCode);
+      const countPerYear = xAxisData.map(year => {
+        const match = recordsByState.filter(record => record.start === year);
+        return match && match.length > 0 ? match[0].count : 0;
       });
 
-      // TODO Clean this up and reduce side-effects
-      var fitToGraph = [];
-      for (var x in data) {
-          var r = { "name": x, "type": "line", "stack": "ByYearByState", "areaStyle": {}, "data": data[x] }
-          fitToGraph.push(r);
-      }
+      return graphObject(stateCode, countPerYear);
+    });
 
-      option = {
-          title: {
-              text: 'Total BBS Starts Recorded by Year by State'
-          },
-          tooltip : {
-              trigger: 'axis',
-              axisPointer: {
-                  type: 'cross',
-                  label: {
-                      backgroundColor: '#6a7985'
-                  }
-              }
-          },
-          legend: {
-              data:['Total BBS Recorded by Year']
-          },
-          toolbox: {
-              feature: {
-                  saveAsImage: {
-                      title: 'Save'
-                  }
-              }
-          },
-          grid: {
-              left: '3%',
-              right: '4%',
-              bottom: '3%',
-              containLabel: true
-          },
-          xAxis : [
-              {
-                  type : 'category',
-                  boundaryGap : false,
-                  data : xAxisData
-              }
-          ],
-          yAxis : [
-              {
-                  type : 'value'
-              }
-          ],
-          series : fitToGraph
-      };
+    option = {
+      title: {
+        text: 'Total BBS Starts Recorded by Year by State'
+      },
+      tooltip : {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#6a7985'
+          }
+        }
+      },
+      legend: {
+        data:['Total BBS Recorded by Year']
+      },
+      toolbox: {
+        feature: {
+          saveAsImage: {
+            title: 'Save'
+          }
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis : [
+        {
+          type : 'category',
+          boundaryGap : false,
+          data : xAxisData
+        }
+      ],
+      yAxis : [
+        {
+          type : 'value'
+        }
+      ],
+      series : fitToGraph
+    };
 
-      myChart.setOption(option);
+    myChart.setOption(option);
   </script>
 </html>

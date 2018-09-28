@@ -10,8 +10,8 @@
   </body>
 
   <script type="text/javascript">
-      var myChart = echarts.init(document.getElementById('main'));
-      var bbsStartsPerYears = window.global_temp.bbs;
+      const myChart = echarts.init(document.getElementById('main'));
+      const bbsStartsPerYears = window.global_temp.bbs;
 
       const xAxisData = bbsStartsPerYears.map(f => {
         return f.start;
